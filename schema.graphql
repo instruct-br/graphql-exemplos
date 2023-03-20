@@ -1,0 +1,76 @@
+"""
+Um tipo enum para declarar exatamente quais status
+são possíveis para um cluster
+"""
+enum Status {
+  UNHEALTHY
+  HEALTHY
+}
+
+"""
+Um tipo da categoria objeto é uma coleção de valores (scalar)
+e/ou outros objetos
+"""
+type Cluster {
+  """
+  Esse campo é obrigatório porque seu tipo termina com uma exclamação
+  """
+  name: String!
+  kubernetesVersion: String!
+  owner: Customer!
+  """
+  Ao invés de usar uma string aqui e deixar o campo status aberto, nós fechamos
+  as possibilidades usando um Enum
+  """
+  status: Status!
+}
+
+type Customer {
+  id: ID!
+  name: String!
+  """
+  Esse campo não tem exclamação, ele é opcional e pode ser nulo
+  """
+  description: String
+  isActive: Boolean!
+  """
+  Quando temos uma lista de objetos você geralmente usa duas exclamações: uma
+  para indicar que a lista não vai ser nula e a interna para indicar que nenhum
+  elemento da lista pode ser nulo
+  """
+  clusters: [Cluster!]!
+}
+
+"""
+As operações de consulta e escrita podem receber parâmetros, uma forma de
+agrupar esses parâmetros e documentá-los melhor é através do uso de um tipo
+input
+"""
+input DeactivateCustomerInput {
+  customerId: ID!
+}
+
+"""
+É uma boa prática você "envelopar" o retorno de suas mutações em tipos
+específicos, isso facilita a evolução gradual do schema
+"""
+type DeactivateCustomerPayload {
+  customer: Customer
+}
+
+"""
+O tipo com nome "Mutation" é especial, ele define quais operações de escrita
+são suportadas pelo seu servidor de GraphQL
+"""
+type Mutation {
+  deactivateCustomer(input: DeactivateCustomerInput!): DeactivateCustomerPayload!
+}
+
+"""
+O tipo com nome "Query" funciona de forma similar à "Mutation", mas descreve
+as operações de consulta
+"""
+type Query {
+  myClusters: [Cluster!]!
+  allClusters: [Cluster!]!
+}
